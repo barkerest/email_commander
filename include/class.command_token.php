@@ -2,8 +2,8 @@
 
 abstract class CommandToken
 {
-    private const TOKEN_PRE = '/(?:^|\n|<p(?:\s+[^>]*)?>)\s*(?<token_match>';
-    private const TOKEN_POST = ')[ \t]*(?:$|\r?\n|<br\s*\/>|<\/p>)/';
+    private const TOKEN_PRE = '/(?<ct__before>^|\n|<p(?:\s+[^>]*)?>)\s*#\s*(?<token_match>';
+    private const TOKEN_POST = ')[ \t]*(?<ct__after>$|\r?\n|<br\s*\/>|<\/p>)/';
 
     /**
      * @var string The regular expression to match with.
@@ -102,18 +102,35 @@ abstract class CommandToken
         $this->beforeProcess($flags, $config, $ticket, $note, $ost);
 
         $cb = function ($matches) use (&$flags, $config, $ticket, $note, $ost) {
-            return $this->processMatch($matches, $flags, $config, $ticket, $note, $ost);
+            $m = array();
+
+            $before = $matches['ct__before'][0];
+            $after = $matches['ct__after'][0];
+
+            foreach ($matches as $key => $match) {
+                if (is_numeric($key) || $key == 'ct__before' || $key == 'ct__after')
+                    continue;
+                $m[$key] = $match[0];
+            }
+
+            $rep = $this->processMatch($m, $flags, $config, $ticket, $note, $ost);
+            if (!is_string($rep)) $rep = '';
+
+            return $before . $rep . $after;
         };
 
         $noteBody = $note->getBody();
 
-        $newBody = preg_replace_callback($this->regex, $cb, $noteBody->body);
+        $cnt = 0;
+        $newBody = preg_replace_callback($this->regex, $cb, $noteBody->body, -1, $cnt, PREG_OFFSET_CAPTURE);
         if ($newBody === null) {
             return false;
         }
 
-        $noteBody->body = $newBody;
-        $note->setBody($noteBody);
+        if ($cnt > 0) {
+            $noteBody->body = $newBody;
+            $note->setBody($noteBody);
+        }
 
         return $this->performActions($flags, $config, $ticket, $note, $ost);
     }
@@ -123,7 +140,10 @@ abstract class CommandToken
      */
     private static $tokens = array();
 
-    public static function getTokens()
+    /**
+     * @return CommandToken[]
+     */
+    public static function getTokens(): array
     {
         return self::$tokens;
     }
@@ -136,6 +156,7 @@ abstract class CommandToken
     /**
      * @param $a CommandToken
      * @param $b CommandToken
+     * @return int
      */
     public static function compare(CommandToken $a, CommandToken $b): int
     {

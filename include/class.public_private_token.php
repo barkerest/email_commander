@@ -4,7 +4,7 @@ class PublicPrivateToken extends CommandToken
 {
     public function __construct()
     {
-        $this->regex = $this->buildRegex('(#public|#private|#internal)');
+        $this->regex = $this->buildRegex('(public|private|internal)');
     }
 
     public function runIndex()
@@ -25,7 +25,7 @@ class PublicPrivateToken extends CommandToken
     protected function processMatch(array $matches, array &$flags, EmailCommanderConfig $config, Ticket $ticket, ThreadEntry $note, osTicket $ost):string
     {
         $match = $matches['token_match'];
-        if ($match == '#public')
+        if ($match == 'public')
         {
             $flags['respond'] = true;
         }

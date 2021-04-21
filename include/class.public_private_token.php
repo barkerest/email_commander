@@ -7,12 +7,12 @@ class PublicPrivateToken extends CommandToken
         $this->regex = $this->buildRegex('(public|private|internal)');
     }
 
-    public function runIndex()
+    public function runIndex(): int
     {
         return 10001;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return "Public/Private";
     }

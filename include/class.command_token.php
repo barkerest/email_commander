@@ -15,14 +15,14 @@ abstract class CommandToken
      *
      * @return int
      */
-    public abstract function runIndex();
+    public abstract function runIndex(): int;
 
     /**
      * The name of this token.
      *
      * @return string
      */
-    public abstract function getName();
+    public abstract function getName(): string;
 
     /**
      * Builds a complete regular expression to match the subpattern on any line in the message body.
@@ -191,7 +191,7 @@ abstract class CommandToken
      * @return int The number of tokens processed.  Negative on error.
      * @throws OrmException Error raised when saving ticket or note changes.
      */
-    public static function processAll(EmailCommanderConfig $config, Ticket $ticket, ThreadEntry $note, osTicket $ost)
+    public static function processAll(EmailCommanderConfig $config, Ticket $ticket, ThreadEntry $note, osTicket $ost): int
     {
         $flags = array(
             'callback' => array()   // list of callables with the 'callback' signature to run after all tokens are processed.

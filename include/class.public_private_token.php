@@ -38,6 +38,9 @@ class PublicPrivateToken extends CommandToken
 
     function callback(array $flags, EmailCommanderConfig $config, Ticket $ticket, ThreadEntry $note, osTicket $ost)
     {
+        // TODO: Send the message to the default recipients and change the type from 'N' to 'R'.
+        // This should follow similar behavior to the postResponse() method and the Reply form.
+
 
     }
 
@@ -45,8 +48,6 @@ class PublicPrivateToken extends CommandToken
     {
         if ($flags['respond'])
         {
-            // TODO: Change note to response and gather email recipients.
-
             // Register the callback to send the email after processing.
             $flags['callback'][] = array($this, 'callback');
         }
